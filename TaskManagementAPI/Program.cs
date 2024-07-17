@@ -31,6 +31,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Add controllers to the services
 builder.Services.AddControllers();
 
+//Adding Dependency Injection
+// builder.Services.AddScoped<IMyService,MyService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
