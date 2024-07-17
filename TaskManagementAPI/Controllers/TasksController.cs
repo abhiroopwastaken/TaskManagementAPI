@@ -89,6 +89,59 @@ public class TasksController : ControllerBase
         return NoContent();
     }
 
+            // GET: api/tasks/employee/{employeeId}
+    [HttpGet("employee/{employeeId}")]
+    public async Task<ActionResult<IEnumerable<TaskManagementAPI.Models.Task>>> GetEmployeeTasks(int employeeId)
+    {
+        var employeeTasks = await _context.Tasks
+            .Where(t => t.EmployeeId == employeeId)
+            .ToListAsync();
+
+        return Ok(employeeTasks);
+    }
+
+    // POST: api/tasks/employee/{employeeId}
+    [HttpPost("employee/{employeeId}")]
+    public async Task<ActionResult<TaskManagementAPI.Models.Task>> CreateEmployeeTask(int employeeId, TaskManagementAPI.Models.Task task)
+    {
+        task.EmployeeId = employeeId;
+        _context.Tasks.Add(task);
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetEmployeeTasks), new { employeeId }, task);
+    }
+
+    // PUT: api/tasks/{taskId}
+    [HttpPut("{taskId}")]
+    public async Task<IActionResult> UpdateTask(int taskId, TaskManagementAPI.Models.Task task)
+    {
+        if (taskId != task.Id)
+        {
+            return BadRequest("Task ID mismatch");
+        }
+
+        _context.Entry(task).State = EntityState.Modified;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!TaskExists(taskId))
+            {
+                return NotFound("Task not found");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        return NoContent();
+    }
+
+
     private bool TaskExists(int id)
     {
         return _context.Tasks.Any(t => t.Id == id);

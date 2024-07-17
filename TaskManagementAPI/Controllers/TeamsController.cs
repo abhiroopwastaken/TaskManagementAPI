@@ -90,4 +90,29 @@ public class TeamsController : ControllerBase
     {
         return _context.Teams.Any(e => e.Id == id);
     }
+
+    // GET: api/teams/reports
+    [HttpGet("reports")]
+    public async Task<ActionResult<IEnumerable<TaskManagementAPI.Models.Task>>> GetTasksDueWithin(string dueWithin)
+    {
+        DateTime dueDate;
+        switch (dueWithin.ToLower())
+        {
+            case "week":
+                dueDate = DateTime.Today.AddDays(7);
+                break;
+            case "month":
+                dueDate = DateTime.Today.AddMonths(1);
+                break;
+            default:
+                return BadRequest("Invalid dueWithin parameter. Use 'week' or 'month'.");
+        }
+
+        var tasksDue = await _context.Tasks
+            .Where(t => t.DueDate <= dueDate)
+            .ToListAsync();
+
+        return Ok(tasksDue);
+    }
 }
+
